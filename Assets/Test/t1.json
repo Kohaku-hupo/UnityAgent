@@ -1,0 +1,26 @@
+{
+  "id": "96ae9074-11bc-4369-9553-c1147dd615b1",
+  "object": "chat.completion",
+  "created": 1739109781,
+  "model": "deepseek-chat",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"target\": \"保持房间整洁并满足用户需求\",\n  \"reason\": \"根据用户偏好和当前环境状态，需要调整房间光线并继续完成整理任务\",\n  \"tasks\": [\n    {\"action\": \"找到物品\", \"itemId\": \"lamp_01\", \"interaction\": \"None\"},\n    {\"action\": \"交互\", \"itemId\": \"lamp_01\", \"interaction\": \"打开\"}\n  ],\n  \"updatePlan\": {\n    \"dailyGoal\": \"保持房间整洁并满足用户需求\",\n    \"priorityTaskList\": [\n      {\"task\": \"打开台灯\", \"status\": \"未完成\"},\n      {\"task\": \"整理桌面\", \"status\": \"未完成\"}\n    ]\n  },\n  \"shortTermMemory\": [\n    \"用户刚刚提到房间太暗了\",\n    \"已执行打开台灯操作\"\n  ],\n  \"longTermMemory\": [\n    \"用户偏好光线充足的房间\",\n    \"用户喜欢使用台灯而不是吊灯\"\n  ],\n  \"responseToUser\": \"我打算先打开台灯让房间更亮一些，然后继续整理桌面。这样房间会更整洁，光线也更充足。\"\n}"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1128,
+    "completion_tokens": 250,
+    "total_tokens": 1378,
+    "prompt_tokens_details": { "cached_tokens": 0 },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1128
+  },
+  "system_fingerprint": "fp_3a5770e1b4"
+}

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 public class CTool
 {
@@ -49,4 +50,36 @@ public class CTool
         return null;
     }
 
+    public static GameObject Click(GameObject go, Action ac)
+    {
+        var button = go.GetComponent<Button>();
+        if (!button)
+        {
+            button = go.AddComponent<Button>();
+        }
+        // if (go.GetComponent<Animation>() == null)
+        // go.AddComponent<ButtonHandler>();
+        button.onClick.AddListener(() =>
+        {
+            ac();
+        });
+        return go;
+    }
+    public static GameObject Click(GameObject go, string targetName, Action ac)
+    {
+        var go2 = Find(go, targetName);
+        var button = go2.GetComponent<Button>();
+        if (!button)
+        {
+            button = go2.AddComponent<Button>();
+        }
+        // if (go2.GetComponent<Animation>() == null)
+        // go2.AddComponent<ButtonHandler>();
+        button.onClick.AddListener(() =>
+        {
+            ac();
+
+        });
+        return go2;
+    }
 }

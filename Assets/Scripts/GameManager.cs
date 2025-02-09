@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     }
 
     public RoleManager roleManager;
+    public DeepSeekAPI deepSeekAPI;
 
     void Awake()
     {
@@ -41,6 +42,7 @@ public class GameManager : MonoBehaviour
         }
 
         roleManager = CTool.Find<RoleManager>(gameObject, "RoleManager");
+        deepSeekAPI = CTool.Find<DeepSeekAPI>(gameObject, "DeepSeekAPI");
 
     }
 

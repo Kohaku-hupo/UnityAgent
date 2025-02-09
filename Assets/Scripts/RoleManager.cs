@@ -11,7 +11,8 @@ public class RoleManager : MonoBehaviour
 
     void Start()
     {
-        A();
+        // GameManager.Instance.deepSeekAPI.SendMessageToDeepSeek("", A);
+        // TestA();
     }
 
     void Update()
@@ -22,7 +23,24 @@ public class RoleManager : MonoBehaviour
 
 
 
-    public void A()
+    public void A(string jsonString)
+    {
+        // string jsonString = File.ReadAllText("Assets/Resources/item.json");
+        // string jsonString = "{\"目标\": \"满足用户需求并保持房间整洁\"},";
+        RoleData aa = JsonConvert.DeserializeObject<RoleData>(jsonString);
+        // Debug.Log(aa.target + aa.updatePlan.priorityTaskList[0].task);
+        //  JsonUtility.FromJson<MyData>(jsonString);
+
+        // JsonData jsondata = JsonMapper.ToObject(text.text);
+
+        role.PerformTask(aa.tasks);
+
+        UIManager.Instance.testPanel.SetTargetShow(aa.target);
+        UIManager.Instance.testPanel.SetResponseShow(aa.responseToUser);
+
+    }
+
+     public void TestA()
     {
         string jsonString = File.ReadAllText("Assets/Resources/item.json");
         // string jsonString = "{\"目标\": \"满足用户需求并保持房间整洁\"},";
@@ -33,6 +51,10 @@ public class RoleManager : MonoBehaviour
         // JsonData jsondata = JsonMapper.ToObject(text.text);
 
         role.PerformTask(aa.tasks);
+
+        UIManager.Instance.testPanel.SetTargetShow(aa.target);
+        UIManager.Instance.testPanel.SetResponseShow(aa.responseToUser);
+
     }
 
 
