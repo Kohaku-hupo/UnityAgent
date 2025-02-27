@@ -1,0 +1,14 @@
+{
+  "memory": {
+    "longTermMemory": ["用户偏好光线充足的房间", "用户喜欢使用台灯而不是吊灯"],
+    "shortTermMemory": ["用户刚刚提到房间太暗了"]
+  },
+  "updatePlan": {
+    "dailyGoal": "保持房间整洁并满足用户需求",
+    "priorityTaskList": [
+      { "task": "打扫地板", "status": "已完成" },
+      { "task": "整理桌面", "status": "未完成" },
+      { "task": "打开台灯", "status": "未完成" }
+    ]
+  }
+}

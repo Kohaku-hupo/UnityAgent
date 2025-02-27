@@ -33,7 +33,7 @@ public class DeepSeekAPI : MonoBehaviour
         // }";
 
         string systemPrompt = File.ReadAllText("Assets/Resources/system_prompt.txt");
-        string userPrompt = File.ReadAllText("Assets/Resources/user_prompt.txt");
+        // string userPrompt = File.ReadAllText("Assets/Resources/user_prompt.txt");
         // 创建请求体
         var requestBody = new
         {
@@ -41,7 +41,8 @@ public class DeepSeekAPI : MonoBehaviour
             messages = new[]
             {
                 new { role = "system", content = systemPrompt },
-                new { role = "user", content = userPrompt }
+                // new { role = "user", content = userPrompt }
+                new { role = "user", content = message }
             },
             response_format = new { type = "json_object" }
         };
@@ -60,7 +61,7 @@ public class DeepSeekAPI : MonoBehaviour
         UIManager.Instance.testPanel.SetWaitShow(true);
         // 发送请求
         yield return request.SendWebRequest();
-        
+
         UIManager.Instance.testPanel.SetWaitShow(false);
 
         if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)

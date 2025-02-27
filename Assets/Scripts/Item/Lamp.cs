@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using UnityEngine.Events;
 public class Lamp : ItemBase
 {
-    public string itemName = "台灯";
-    public string itemId = "lamp_01";
-    public override string ItemName { get => itemName; }
-    public override string ItemId { get => itemId; }
+    // public string itemName = "台灯";
+    // public string itemId = "lamp_01";
+    // public override string ItemName { get => itemName; }
+    // public override string ItemId { get => itemId; }
 
 
 
