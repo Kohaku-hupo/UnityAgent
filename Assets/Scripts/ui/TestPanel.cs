@@ -22,6 +22,8 @@ public class TestPanel : MonoBehaviour
         btn_start = CTool.Click(gameObject, "btn_start", ClickStart);
         inputField = CTool.Find<InputField>(gameObject, "inputField");
         inputField.onEndEdit.AddListener(OnInputFieldEndEdit);
+        // 添加onValueChanged监听器
+        inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
     }
 
     // Update is called once per frame
@@ -67,5 +69,12 @@ public class TestPanel : MonoBehaviour
             GameManager.Instance.roleManager.SubmitUserContent(input);
             inputField.text = ""; // 清空输入框
         }
+    }
+
+    private void OnInputFieldValueChanged(string input)
+    {
+        // 当输入框内容发生变化时触发
+        Debug.Log($"输入框内容变化：{input}");
+        GameManager.Instance.roleManager.OnUserInput();
     }
 }

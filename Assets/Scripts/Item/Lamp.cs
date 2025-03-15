@@ -12,26 +12,19 @@ public class Lamp : ItemBase
 
 
 
-    public override void RoleAction(string actionName, RoleBase role)
+    public override void RoleAction(string actionName, RoleBase role, UnityAction callback)
     {
         if (actionName == "打开")
         {
             Debug.Log("打开台灯");
-            StartCoroutine(Wait(2, role.NextTask));
             // role.NextTask();
         }
         else if (actionName == "关闭")
         {
             Debug.Log("关闭台灯");
-            StartCoroutine(Wait(2, role.NextTask));
             // role.NextTask();
         }
+        StartCoroutine(Wait(2, callback));
     }
 
-    private IEnumerator Wait(float time, UnityAction callback)
-    {
-
-        yield return new WaitForSeconds(2); // 等待2秒
-        callback();
-    }
 }

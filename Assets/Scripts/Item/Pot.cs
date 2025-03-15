@@ -10,22 +10,15 @@ public class Pot : ItemBase
     // public override string ItemName { get => itemName; }
     // public override string ItemId { get => itemId; }
 
-    public override void RoleAction(string actionName, RoleBase role)
+    public override void RoleAction(string actionName, RoleBase role, UnityAction callback)
     {
         if (actionName == "烹饪")
         {
             Debug.Log("烹饪");
 
-            StartCoroutine(Wait(2, role.NextTask));
             // role.NextTask();
         }
-
+        StartCoroutine(Wait(2, callback));
     }
 
-    private IEnumerator Wait(float time, UnityAction callback)
-    {
-
-        yield return new WaitForSeconds(2); // 等待2秒
-        callback();
-    }
 }

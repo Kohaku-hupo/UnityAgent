@@ -10,18 +10,60 @@ public class RoleManager : MonoBehaviour
     public RoleBase role;
     public List<ItemBase> items = new();
 
-    public UserData curUserData = new();
+    [HideInInspector] public UserData curUserData = new();
+    [SerializeField] private string autoSubmitText = "随便找点事做";
+    [SerializeField] private float waitTime = 10f;
+    private float curWaitTime = 0f;
+    private bool waitIng = false;
 
     void Awake()
     {
         StartSet();
+        StartWait();
         // GameManager.Instance.deepSeekAPI.SendMessageToDeepSeek("", A);
         // TestA();
     }
 
-    // void Update()
-    // {
-    // }
+    void Update()
+    {
+        // 等待一定时间后自动发送请求
+        if (waitIng && curWaitTime > 0)
+        {
+            curWaitTime -= Time.deltaTime;
+            if (curWaitTime <= 0)
+            {
+                waitIng = false;
+                AutoSubmitContent();
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// 处理任务完成时调用
+    /// </summary>
+    public void OnTaskFinish()
+    {
+        StartWait();
+    }
+
+    /// <summary>
+    /// 用户输入时调用，打断等待
+    /// </summary>
+    public void OnUserInput()
+    {
+        waitIng = false;
+    }
+
+    /// <summary>
+    /// 开始等待
+    /// </summary>
+    private void StartWait()
+    {
+        waitIng = true;
+        curWaitTime = waitTime;
+        Debug.Log("开始等待");
+    }
 
     public void StartSet()
     {
@@ -61,13 +103,16 @@ public class RoleManager : MonoBehaviour
         // File.WriteAllText("Assets/Resources/Test/temp_user_prompt.json", jsonString);
     }
 
+    /// <summary>
+    /// 处理返回的信息
+    /// </summary>
+    /// <param name="jsonString"></param>
     public void GetReturnData(string jsonString)
     {
         RoleData roleData = JsonConvert.DeserializeObject<RoleData>(jsonString);
         // Debug.Log(aa.target + aa.updatePlan.priorityTaskList[0].task);
         //  JsonUtility.FromJson<MyData>(jsonString);
         // JsonData jsondata = JsonMapper.ToObject(text.text);
-
 
         //更新信息
         // curUserData.environmentInfo.UpdateStatus(items);
@@ -80,9 +125,12 @@ public class RoleManager : MonoBehaviour
 
         UIManager.Instance.testPanel.SetTargetShow(roleData.target);
         UIManager.Instance.testPanel.SetResponseShow(roleData.responseToUser);
-
     }
 
+    /// <summary>
+    /// 提交用户输入
+    /// </summary>
+    /// <param name="userinput"></param>
     public void SubmitUserContent(string userinput)
     {
         curUserData.userContent = userinput;
@@ -90,6 +138,12 @@ public class RoleManager : MonoBehaviour
         string json = JsonConvert.SerializeObject(curUserData);
         Debug.Log(json); // 输出序列化结果
         GameManager.Instance.deepSeekAPI.SendMessageToDeepSeek(json, GameManager.Instance.roleManager.GetReturnData);
+    }
+
+    private void AutoSubmitContent()
+    {
+        Debug.Log("自动提交");
+        SubmitUserContent(autoSubmitText);
     }
 
 
@@ -111,6 +165,10 @@ public class RoleManager : MonoBehaviour
     }
 
 }
+
+
+
+
 
 [System.Serializable]
 public class StartSetData

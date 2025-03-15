@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ItemBase : MonoBehaviour
 {
@@ -29,8 +30,14 @@ public class ItemBase : MonoBehaviour
 
     }
 
-    public virtual void RoleAction(string actionName, RoleBase role)
+    public virtual void RoleAction(string actionName, RoleBase role, UnityAction callback)
     {
+        StartCoroutine(Wait(2, callback));
+    }
 
+    protected virtual IEnumerator Wait(float time, UnityAction callback)
+    {
+        yield return new WaitForSeconds(2); // 等待2秒
+        callback();
     }
 }

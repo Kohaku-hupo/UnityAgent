@@ -569,6 +569,9 @@ MonoBehaviour:
       dailyGoal: 
       priorityTaskList: []
     userContent: 
+  autoSubmitText: "\u968F\u4FBF\u627E\u70B9\u4E8B\u505A"
+  waitTime: 10
+  curWaitTime: 0
 --- !u!4 &614088763
 Transform:
   m_ObjectHideFlags: 0
@@ -26152,6 +26155,6 @@ SceneRoots:
   - {fileID: 988917305750611515}
   - {fileID: 1918743354038503650}
   - {fileID: 967458028}
-  - {fileID: 245407190}
   - {fileID: 1187992284}
   - {fileID: 1638021409}
+  - {fileID: 245407190}

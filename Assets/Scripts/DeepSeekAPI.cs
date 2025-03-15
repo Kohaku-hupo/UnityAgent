@@ -8,7 +8,7 @@ using System.IO;
 
 public class DeepSeekAPI : MonoBehaviour
 {
-    private string apiKey = "sk-5b095256a2b44d4da028da387f27ede4";
+    private string apiKey = "sk-9072ef319dbf495f9bf3c6a4285c3d11";
     private string apiUrl = "https://api.deepseek.com/v1/chat/completions";
 
 

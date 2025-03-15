@@ -10,15 +10,14 @@ public class RoleBase : MonoBehaviour
     private List<Task> curTasks = new();
 
     private int curTaskIndex = 0;
-    private Task CurTask { get => curTasks[curTaskIndex]; }
 
     private float moveSpeed = 5;
     private float turnSpeed = 200;
     private bool taskIng = false;
     private Vector3 moveTarget;
 
-    private float actionTime = 3;
-    private float curXctionTime = 0;
+    // private float actionTime = 3;
+    // private float curXctionTime = 0;
 
     void Start()
     {
@@ -29,9 +28,9 @@ public class RoleBase : MonoBehaviour
 
     void Update()
     {
-        if (taskIng && CurTask != null)
+        if (taskIng && GetCurTask() != null)
         {
-            if (CurTask.action == "移动")
+            if (GetCurTask().action == "移动")
             {
                 // 移动逻辑
                 // // 到达目标点1后的逻辑
@@ -43,7 +42,7 @@ public class RoleBase : MonoBehaviour
                 // }
                 // PerformAction(CurTask);
             }
-            else if (CurTask.action == "找到物品")
+            else if (GetCurTask().action == "找到物品")
             {
                 if (moveTarget != null)
                 {
@@ -70,23 +69,40 @@ public class RoleBase : MonoBehaviour
                     NextTask();
                 }
             }
-            else if (CurTask.action == "交互")
+            else if (GetCurTask().action == "交互")
             {
 
             }
         }
     }
 
+    private Task GetCurTask()
+    {
+        if (curTasks == null || curTasks.Count == 0)
+        {
+            return null;
+        }
+        return curTasks[curTaskIndex];
+    }
+
+
     public void PerformTask(List<Task> tasks)
     {
         curTasks = tasks.ToList();
         curTaskIndex = 0;
         taskIng = true;
-        PerformAction(CurTask);
+        PerformAction(GetCurTask());
     }
 
     private void PerformAction(Task task)
     {
+        if (task == null || task.action == "" || task.action == "None")
+        {
+            Debug.Log("任务为空");
+            FinishTask();
+            return;
+        }
+
         var target = GameManager.Instance.roleManager.items.Find(e => e.ItemId == task.itemId);
         Debug.Log("执行任务：" + task.action + "--目标： " + task.itemId + "--动作： " + task.interaction);
 
@@ -107,7 +123,7 @@ public class RoleBase : MonoBehaviour
         {
             if (target != null)
             {
-                target.RoleAction(task.interaction, this);
+                target.RoleAction(task.interaction, this, NextTask);
                 UIManager.Instance.testPanel.SetCurTaskShow("交互 目标: " + target.ItemName + " 动作: " + task.interaction);
             }
         }
@@ -119,11 +135,19 @@ public class RoleBase : MonoBehaviour
         curTaskIndex++;
         if (curTaskIndex >= curTasks.Count)
         {
-            taskIng = false;
-            UIManager.Instance.testPanel.SetCurTaskShow("无");
-            Debug.Log("任务全部完成");
+            FinishTask();
             return;
         }
-        PerformAction(CurTask);
+        PerformAction(GetCurTask());
+    }
+
+    private void FinishTask()
+    {
+        taskIng = false;
+        UIManager.Instance.testPanel.SetCurTaskShow("无");
+
+        GameManager.Instance.roleManager.OnTaskFinish();
+
+        Debug.Log("任务全部完成");
     }
 }
