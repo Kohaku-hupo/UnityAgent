@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class RoleBase : MonoBehaviour
 {
+    private Animator animator;
 
     private List<Task> curTasks = new();
 
     private int curTaskIndex = 0;
 
-    private float moveSpeed = 5;
+    private float moveSpeed = 1;
     private float turnSpeed = 200;
     private bool taskIng = false;
     private Vector3 moveTarget;
@@ -21,6 +22,7 @@ public class RoleBase : MonoBehaviour
 
     void Start()
     {
+        animator = GetComponent<Animator>();
         // curTasks = new();
         // curTaskIndex = 0;
 
@@ -54,10 +56,14 @@ public class RoleBase : MonoBehaviour
                     {
                         // transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
                         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+                        animator.SetBool("IsWalking", false); // 转向时不播放行走动画
                     }
                     else
                     {
+                        // 移动时播放行走动画
+                        animator.SetBool("IsWalking", true);
                         // 移动到目标位置
+
                         transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
                     }
                     // // 移动到目标位置
@@ -65,13 +71,16 @@ public class RoleBase : MonoBehaviour
                 }
                 if (Vector3.Distance(transform.position, moveTarget) < 0.1f)
                 {
+                    // 到达目标后停止动画
+                    animator.SetBool("IsWalking", false);
                     // 到达目标点1后的逻辑
                     NextTask();
                 }
             }
             else if (GetCurTask().action == "交互")
             {
-
+                // 交互时停止动画
+                animator.SetBool("IsWalking", false);
             }
         }
     }
@@ -104,30 +113,38 @@ public class RoleBase : MonoBehaviour
         }
 
         var target = GameManager.Instance.roleManager.items.Find(e => e.ItemId == task.itemId);
+        if (target == null)
+        {
+            Debug.LogError($"找不到目标物品: {task.itemId}");
+            FinishTask();
+            return;
+        }
+
         Debug.Log("执行任务：" + task.action + "--目标： " + task.itemId + "--动作： " + task.interaction);
 
         if (task.action == "移动")
         {
-
+            // TODO: 实现移动逻辑
+            Debug.Log("移动动作待实现");
+            NextTask();
         }
         else if (task.action == "找到物品")
         {
-            if (target != null)
-            {
-                moveTarget = new Vector3(target.rolePos.transform.position.x, 0, target.rolePos.transform.position.z);
-
-                UIManager.Instance.testPanel.SetCurTaskShow("找到物品: " + target.ItemName);
-            }
+            moveTarget = new Vector3(target.rolePos.transform.position.x, 0, target.rolePos.transform.position.z);
+            UIManager.Instance.testPanel.SetCurTaskShow("找到物品: " + target.ItemName + ":" + target.ItemId);
         }
         else if (task.action == "交互")
         {
-            if (target != null)
-            {
-                target.RoleAction(task.interaction, this, NextTask);
-                UIManager.Instance.testPanel.SetCurTaskShow("交互 目标: " + target.ItemName + " 动作: " + task.interaction);
-            }
+            target.RoleAction(task.interaction, this, NextTask);
+            UIManager.Instance.testPanel.SetCurTaskShow("交互 目标: " + target.ItemName + " 动作: " + task.interaction);
         }
-
+        // 输出剩余任务列表
+        string remainingTasks = "剩余任务列表:\n";
+        for (int i = curTaskIndex; i < curTasks.Count; i++)
+        {
+            remainingTasks += $"任务{i + 1}: {curTasks[i].action} - 目标ID: {curTasks[i].itemId} - 交互: {curTasks[i].interaction}\n";
+        }
+        Debug.Log(remainingTasks);
     }
 
     public void NextTask()
@@ -144,10 +161,9 @@ public class RoleBase : MonoBehaviour
     private void FinishTask()
     {
         taskIng = false;
+        animator.SetBool("IsWalking", false);
         UIManager.Instance.testPanel.SetCurTaskShow("无");
-
         GameManager.Instance.roleManager.OnTaskFinish();
-
         Debug.Log("任务全部完成");
     }
 }

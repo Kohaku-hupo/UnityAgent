@@ -64,7 +64,7 @@ public class TestPanel : MonoBehaviour
         // 当检测到回车时才会触发（键盘的Enter键或手机的Done按钮）
         if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))
         {
-            Debug.Log($"用户输入内容：{input}");
+            Debug.Log($"用户已发送：{input}");
             // 在这里处理输入内容：
             GameManager.Instance.roleManager.SubmitUserContent(input);
             inputField.text = ""; // 清空输入框
@@ -74,7 +74,6 @@ public class TestPanel : MonoBehaviour
     private void OnInputFieldValueChanged(string input)
     {
         // 当输入框内容发生变化时触发
-        Debug.Log($"输入框内容变化：{input}");
         GameManager.Instance.roleManager.OnUserInput();
     }
 }
