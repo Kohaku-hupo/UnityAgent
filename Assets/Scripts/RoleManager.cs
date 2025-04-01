@@ -126,29 +126,27 @@ public class RoleManager : MonoBehaviour
         }
     }
 
-    public void GetReturnData(string jsonString)
+    public void GetReturnData(string json)
     {
         try
         {
-            var roleData = JsonConvert.DeserializeObject<RoleData>(jsonString);
+            RoleData roleData = JsonConvert.DeserializeObject<RoleData>(json);
             if (roleData == null)
             {
-                Debug.LogError("解析返回数据失败");
+                Debug.LogError("解析JSON失败，返回的数据格式不正确");
                 return;
             }
 
-            Debug.Log("开始处理返回数据...");
-            Debug.Log($"原始任务数据: {JsonConvert.SerializeObject(roleData.tasks)}");
+            Debug.Log($"收到大模型响应: {json}");
 
-            // 执行任务
+            // 开始处理任务
             if (roleData.tasks != null && roleData.tasks.Count > 0)
             {
-                // 验证所有物品是否存在
                 bool allItemsExist = true;
                 foreach (var task in roleData.tasks)
                 {
                     // 首先尝试直接匹配ItemId
-                    var item = items.FirstOrDefault(i => i.ItemId == task.itemId);
+                    var item = items.FirstOrDefault(i => i.ItemId.Equals(task.itemId, StringComparison.OrdinalIgnoreCase));
                     
                     // 如果找不到，尝试通过类型名称匹配
                     if (item == null)
@@ -156,7 +154,7 @@ public class RoleManager : MonoBehaviour
                         // 将输入ID转换为小写以进行不区分大小写的比较
                         string lowerId = task.itemId.ToLower();
                         // 尝试匹配任何以该类型名称开头的物品ID
-                        item = items.FirstOrDefault(i => i.ItemId.StartsWith(lowerId + "_"));
+                        item = items.FirstOrDefault(i => i.ItemId.ToLower().StartsWith(lowerId + "_"));
                         
                         if (item != null)
                         {
@@ -200,12 +198,61 @@ public class RoleManager : MonoBehaviour
 
             UIManager.Instance.testPanel.SetTargetShow(roleData.target);
             UIManager.Instance.testPanel.SetResponseShow(roleData.responseToUser);
+            
+            // 使用语音合成播放大模型回复
+            SpeakResponse(roleData.responseToUser);
+            
+            // 注意：现在不在这里调用StartWait，而是在语音播放完成后调用
         }
         catch (Exception e)
         {
             Debug.LogError($"处理返回数据时出错: {e.Message}");
             Debug.LogError($"堆栈跟踪: {e.StackTrace}");
         }
+    }
+
+    /// <summary>
+    /// 使用语音合成播放文本
+    /// </summary>
+    /// <param name="text">要合成的文本</param>
+    private void SpeakResponse(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            Debug.LogWarning("回复内容为空，跳过语音合成");
+            OnSpeechFinished();
+            return;
+        }
+        
+        // 如果回复内容为"none"，跳过语音合成
+        if (text.Trim().Equals("none", StringComparison.OrdinalIgnoreCase))
+        {
+            Debug.Log("回复内容为none，跳过语音合成");
+            OnSpeechFinished();
+            return;
+        }
+        
+        // 尝试获取语音合成组件
+        var speechSynthesizer = GameManager.Instance.speechSynthesizer;
+        if (speechSynthesizer != null)
+        {
+            Debug.Log($"开始合成语音: {text.Substring(0, Math.Min(30, text.Length))}...");
+            speechSynthesizer.SpeakText(text, OnSpeechFinished);
+        }
+        else
+        {
+            Debug.LogWarning("语音合成组件未初始化");
+            OnSpeechFinished();
+        }
+    }
+    
+    /// <summary>
+    /// 语音播放完成后的回调
+    /// </summary>
+    private void OnSpeechFinished()
+    {
+        Debug.Log("语音播放已完成，继续执行后续逻辑");
+        StartWait(); // 语音播放完成后开始等待
     }
 
     private List<RoomStatus> GetCurrentEnvironmentStatus()

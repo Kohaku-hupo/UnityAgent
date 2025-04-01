@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
 
     public RoleManager roleManager;
     public DeepSeekAPI deepSeekAPI;
+    public BaiduSpeechSynthesizer speechSynthesizer;
 
     void Awake()
     {
@@ -40,5 +41,32 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Debug.Log("GameManager started");
+        
+        // 初始化语音合成组件
+        InitializeSpeechSynthesizer();
+    }
+    
+    /// <summary>
+    /// 初始化百度语音合成组件
+    /// </summary>
+    private void InitializeSpeechSynthesizer()
+    {
+        // 如果已经存在则不需要创建
+        if (BaiduSpeechSynthesizer.Instance != null)
+        {
+            speechSynthesizer = BaiduSpeechSynthesizer.Instance;
+            Debug.Log("已找到现有的语音合成组件");
+            return;
+        }
+        
+        // 创建用于语音合成的GameObject
+        GameObject speechObject = new GameObject("BaiduSpeechSynthesizer");
+        speechSynthesizer = speechObject.AddComponent<BaiduSpeechSynthesizer>();
+        
+        // 添加AudioSource组件
+        AudioSource audioSource = speechObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        
+        Debug.Log("语音合成组件已初始化");
     }
 }
