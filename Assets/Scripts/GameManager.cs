@@ -10,18 +10,6 @@ public class GameManager : MonoBehaviour
     {
         get
         {
-            // if (_instance == null)
-            // {
-            //     // 尝试查找场景中已存在的GameManager实例
-            //     _instance = FindObjectOfType<GameManager>();
-
-            //     if (_instance == null)
-            //     {
-            //         // 如果没有找到，则创建一个新的GameManager实例
-            //         GameObject singletonObject = new GameObject("GameManager");
-            //         _instance = singletonObject.AddComponent<GameManager>();
-            //     }
-            // }
             return _instance;
         }
     }
@@ -34,19 +22,23 @@ public class GameManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            DontDestroyOnLoad(gameObject); // 防止场景切换时销毁GameManager
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
+            return;
         }
 
         roleManager = CTool.Find<RoleManager>(gameObject, "RoleManager");
         deepSeekAPI = CTool.Find<DeepSeekAPI>(gameObject, "DeepSeekAPI");
 
+        // 初始化MongoDB管理器
+        _ = MongoDBManager.Instance;
     }
 
     void Start()
     {
+        Debug.Log("GameManager started");
     }
 }

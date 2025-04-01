@@ -10,21 +10,49 @@ public class Lamp : ItemBase
     // public override string ItemName { get => itemName; }
     // public override string ItemId { get => itemId; }
 
-
-
-    public override void RoleAction(string actionName, RoleBase role, UnityAction callback)
+    protected override void Awake()
     {
-        if (actionName == "打开")
+        itemType = ItemType.Lamp;
+        interactionTime = 1f; // 设置台灯的交互时间为1秒
+        base.Awake();
+    }
+
+    protected override void InitializeItem()
+    {
+        if (itemType != ItemType.Lamp)
         {
-            Debug.Log("打开台灯");
-            // role.NextTask();
+            itemType = ItemType.Lamp;
         }
-        else if (actionName == "关闭")
+        base.InitializeItem();
+        itemName = "台灯";
+        if (string.IsNullOrEmpty(itemStatus))
         {
-            Debug.Log("关闭台灯");
-            // role.NextTask();
+            itemStatus = "关闭";
         }
-        StartCoroutine(Wait(2, callback));
+    }
+
+    protected override void ExecuteAction(string actionName, RoleBase role, UnityAction callback)
+    {
+        switch (actionName.ToLower())
+        {
+            case "打开":
+                if (itemStatus == "关闭")
+                {
+                    itemStatus = "开启";
+                    Debug.Log($"{itemName}已打开");
+                }
+                break;
+            case "关闭":
+                if (itemStatus == "开启")
+                {
+                    itemStatus = "关闭";
+                    Debug.Log($"{itemName}已关闭");
+                }
+                break;
+            default:
+                base.ExecuteAction(actionName, role, callback);
+                break;
+        }
     }
 
 }
