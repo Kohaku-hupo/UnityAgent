@@ -36,7 +36,7 @@ public class Television : ItemBase
             Debug.Log($"{gameObject.name}的rolePos为空，尝试重新创建");
             GameObject rolePosition = new GameObject("RolePosition");
             rolePosition.transform.SetParent(transform, false);
-            rolePosition.transform.localPosition = new Vector3(0, 0, -1.5f);
+            rolePosition.transform.localPosition = new Vector3(0, 0, 0);
             rolePos = rolePosition;
         }
     }
@@ -56,7 +56,7 @@ public class Television : ItemBase
             Debug.LogError($"{gameObject.name}的rolePos为空，尝试重新创建");
             GameObject rolePosition = new GameObject("RolePosition");
             rolePosition.transform.SetParent(transform, false);
-            rolePosition.transform.localPosition = new Vector3(0, 0, -1.5f);
+            rolePosition.transform.localPosition = new Vector3(0, 0, 0);
             rolePos = rolePosition;
         }
         

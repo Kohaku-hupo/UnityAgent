@@ -121,11 +121,11 @@ public class DeepSeekAPI : MonoBehaviour
                         // 检查并保存记忆相关内容
                         if (parsedContent["shortTermMemory"] != null)
                         {
-                            _ = MongoDBManager.Instance.SaveMemory("shortTerm", parsedContent["shortTermMemory"]);
+                            _ = MongoDBManager.Instance.SaveMemory("shortterm", parsedContent["shortTermMemory"]);
                         }
                         if (parsedContent["longTermMemory"] != null)
                         {
-                            _ = MongoDBManager.Instance.SaveMemory("longTerm", parsedContent["longTermMemory"]);
+                            _ = MongoDBManager.Instance.SaveMemory("longterm", parsedContent["longTermMemory"]);
                         }
 
                         // 检查并保存环境更新

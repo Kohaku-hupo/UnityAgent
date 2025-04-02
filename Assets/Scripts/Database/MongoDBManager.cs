@@ -12,21 +12,18 @@ public class MongoDBManager : MonoBehaviour
 {
     private static MongoDBManager instance;
     private IMongoDatabase database;
-    private IMongoDatabase shortTermDB;  // 短期记忆数据库
-    private IMongoDatabase longTermDB;   // 长期记忆数据库
     private MongoClient client;
     private const string CONNECTION_STRING = "mongodb://127.0.0.1:27017/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000";
     private const string DATABASE_NAME = "UnityAgentDB";
-    private const string SHORT_TERM_DB = "ShortTermMemoryDB";  // 短期记忆数据库名
-    private const string LONG_TERM_DB = "LongTermMemoryDB";    // 长期记忆数据库名
     private bool isInitialized = false;
 
     // 定义集合名称
     private const string COLLECTION_MODEL_RESPONSES = "model_responses";
-    private const string COLLECTION_MEMORY = "memory";         // 用于存储记忆的通用集合名
     private const string COLLECTION_ENVIRONMENT = "environment";
     private const string COLLECTION_TASKS = "priority_tasks";
     private const string COLLECTION_CHAT = "chat_history";
+    private const string COLLECTION_SHORT_TERM_MEMORY = "short_term_memory";
+    private const string COLLECTION_LONG_TERM_MEMORY = "long_term_memory";
     
     public static MongoDBManager Instance
     {
@@ -70,21 +67,17 @@ public class MongoDBManager : MonoBehaviour
             
             client = new MongoClient(settings);
             database = client.GetDatabase(DATABASE_NAME);
-            shortTermDB = client.GetDatabase(SHORT_TERM_DB);
-            longTermDB = client.GetDatabase(LONG_TERM_DB);
             
             // 测试连接
             database.RunCommand<BsonDocument>(new BsonDocument("ping", 1));
-            shortTermDB.RunCommand<BsonDocument>(new BsonDocument("ping", 1));
-            longTermDB.RunCommand<BsonDocument>(new BsonDocument("ping", 1));
             
             // 确保所有需要的集合都存在
             EnsureCollectionExists(database, COLLECTION_MODEL_RESPONSES);
             EnsureCollectionExists(database, COLLECTION_ENVIRONMENT);
             EnsureCollectionExists(database, COLLECTION_TASKS);
             EnsureCollectionExists(database, COLLECTION_CHAT);
-            EnsureCollectionExists(shortTermDB, COLLECTION_MEMORY);
-            EnsureCollectionExists(longTermDB, COLLECTION_MEMORY);
+            EnsureCollectionExists(database, COLLECTION_SHORT_TERM_MEMORY);
+            EnsureCollectionExists(database, COLLECTION_LONG_TERM_MEMORY);
             
             isInitialized = true;
             Debug.Log("MongoDB connections established successfully");
@@ -219,9 +212,10 @@ public class MongoDBManager : MonoBehaviour
 
         try
         {
-            // 根据记忆类型选择数据库
-            IMongoDatabase targetDB = memoryType.ToLower() == "shortterm" ? shortTermDB : longTermDB;
-            var collection = targetDB.GetCollection<BsonDocument>(COLLECTION_MEMORY);
+            // 根据记忆类型选择集合
+            string collectionName = memoryType.ToLower() == "shortterm" ? 
+                COLLECTION_SHORT_TERM_MEMORY : COLLECTION_LONG_TERM_MEMORY;
+            var collection = database.GetCollection<BsonDocument>(collectionName);
             
             // 将内容转换为JToken以便处理数组或对象
             string contentStr = JsonConvert.SerializeObject(memoryContent);
@@ -257,7 +251,7 @@ public class MongoDBManager : MonoBehaviour
             }
 
             await collection.InsertOneAsync(document);
-            Debug.Log($"{memoryType} memory saved successfully to {targetDB.DatabaseNamespace.DatabaseName}");
+            Debug.Log($"{memoryType} memory saved successfully to {collectionName}");
         }
         catch (Exception e)
         {
@@ -402,9 +396,10 @@ public class MongoDBManager : MonoBehaviour
     {
         try
         {
-            // 根据记忆类型选择数据库
-            IMongoDatabase targetDB = memoryType.ToLower() == "shortterm" ? shortTermDB : longTermDB;
-            var collection = targetDB.GetCollection<BsonDocument>(COLLECTION_MEMORY);
+            // 根据记忆类型选择集合
+            string collectionName = memoryType.ToLower() == "shortterm" ? 
+                COLLECTION_SHORT_TERM_MEMORY : COLLECTION_LONG_TERM_MEMORY;
+            var collection = database.GetCollection<BsonDocument>(collectionName);
             var sort = Builders<BsonDocument>.Sort.Descending("timestamp");
             return await collection.Find(new BsonDocument()).Sort(sort).Limit(limit).FirstOrDefaultAsync();
         }
@@ -471,7 +466,7 @@ public class MongoDBManager : MonoBehaviour
     {
         try
         {
-            var collection = shortTermDB.GetCollection<BsonDocument>(COLLECTION_MEMORY);
+            var collection = database.GetCollection<BsonDocument>(COLLECTION_SHORT_TERM_MEMORY);
             var sort = Builders<BsonDocument>.Sort.Descending("timestamp");
             return await collection.Find(new BsonDocument())
                                  .Sort(sort)
@@ -490,7 +485,7 @@ public class MongoDBManager : MonoBehaviour
     {
         try
         {
-            var collection = longTermDB.GetCollection<BsonDocument>(COLLECTION_MEMORY);
+            var collection = database.GetCollection<BsonDocument>(COLLECTION_LONG_TERM_MEMORY);
             var sort = Builders<BsonDocument>.Sort.Descending("timestamp");
             return await collection.Find(new BsonDocument())
                                  .Sort(sort)

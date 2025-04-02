@@ -196,6 +196,68 @@ public class RoleManager : MonoBehaviour
             curUserData.memory.UpdateMemory(roleData.shortTermMemory, roleData.longTermMemory);
             curUserData.updatePlan = roleData.updatePlan;
 
+            // 保存更新后的记忆到数据库
+            if (roleData.shortTermMemory != null && roleData.shortTermMemory.Count > 0)
+            {
+                Debug.Log("保存短期记忆到数据库...");
+                try
+                {
+                    _ = MongoDBManager.Instance.SaveMemory("shortterm", roleData.shortTermMemory);
+                }
+                catch (Exception memEx)
+                {
+                    Debug.LogError($"保存短期记忆失败: {memEx.Message}");
+                }
+            }
+
+            if (roleData.longTermMemory != null && roleData.longTermMemory.Count > 0)
+            {
+                Debug.Log("保存长期记忆到数据库...");
+                try
+                {
+                    _ = MongoDBManager.Instance.SaveMemory("longterm", roleData.longTermMemory);
+                }
+                catch (Exception memEx)
+                {
+                    Debug.LogError($"保存长期记忆失败: {memEx.Message}");
+                }
+            }
+
+            // 保存环境和任务更新
+            if (roleData.updatedEnvironment != null)
+            {
+                try
+                {
+                    _ = MongoDBManager.Instance.SaveEnvironmentUpdate(roleData.updatedEnvironment);
+                }
+                catch (Exception envEx)
+                {
+                    Debug.LogError($"保存环境状态失败: {envEx.Message}");
+                }
+            }
+
+            if (roleData.updatedPriorityTaskList != null)
+            {
+                try
+                {
+                    _ = MongoDBManager.Instance.SaveTaskListUpdate(roleData.updatedPriorityTaskList);
+                }
+                catch (Exception taskEx)
+                {
+                    Debug.LogError($"保存任务列表失败: {taskEx.Message}");
+                }
+            }
+
+            // 保存对话历史
+            try
+            {
+                _ = MongoDBManager.Instance.SaveChatHistory(curUserData.userContent, roleData.responseToUser);
+            }
+            catch (Exception chatEx)
+            {
+                Debug.LogError($"保存对话历史失败: {chatEx.Message}");
+            }
+
             UIManager.Instance.testPanel.SetTargetShow(roleData.target);
             UIManager.Instance.testPanel.SetResponseShow(roleData.responseToUser);
             
@@ -217,18 +279,10 @@ public class RoleManager : MonoBehaviour
     /// <param name="text">要合成的文本</param>
     private void SpeakResponse(string text)
     {
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrEmpty(text) || text.Equals("none", StringComparison.OrdinalIgnoreCase))
         {
-            Debug.LogWarning("回复内容为空，跳过语音合成");
-            OnSpeechFinished();
-            return;
-        }
-        
-        // 如果回复内容为"none"，跳过语音合成
-        if (text.Trim().Equals("none", StringComparison.OrdinalIgnoreCase))
-        {
-            Debug.Log("回复内容为none，跳过语音合成");
-            OnSpeechFinished();
+            Debug.LogWarning("回复内容为空或为'none'，跳过语音合成");
+            OnSpeechFinished(); // 直接调用回调继续后续逻辑
             return;
         }
         
@@ -242,7 +296,7 @@ public class RoleManager : MonoBehaviour
         else
         {
             Debug.LogWarning("语音合成组件未初始化");
-            OnSpeechFinished();
+            OnSpeechFinished(); // 如果语音组件不可用，也直接调用回调
         }
     }
     
